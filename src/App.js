@@ -1,6 +1,7 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import logo from './logo.svg'
+import './App.css'
+import SearchBox from './SearchBox'
 
 function App() {
   return (
@@ -19,8 +20,11 @@ function App() {
           Learn React
         </a>
       </header>
+      <main>
+        <SearchBox />
+      </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
