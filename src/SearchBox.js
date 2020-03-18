@@ -56,16 +56,22 @@ class SearchResults extends Component {
   componentDidUpdate(prevProps) {
     const { searchTerm } = this.props
     if (searchTerm && searchTerm !== prevProps.searchTerm) {
-      console.log({ searchTerm })
-      this.webWorker.postMessage({ searchTerm })
+      this.webWorker.postMessage({ searchTerm, confirmed: true })
     }
   }
 
   handleResults = evt => {
-    const { searchResults } = evt.data
-    this.setState({
-      searchResults,
-    })
+    const { searchResults, confirmSearchTerm } = evt.data
+    if (confirmSearchTerm && confirmSearchTerm === this.props.searchTerm) {
+      this.webWorker.postMessage({
+        searchTerm: this.props.searchTerm,
+        confirmed: true,
+      })
+    } else if (searchResults) {
+      this.setState({
+        searchResults,
+      })
+    }
   }
 
   render() {

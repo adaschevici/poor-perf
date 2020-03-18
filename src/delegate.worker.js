@@ -18,6 +18,10 @@ function initiateSearchEngine(data) {
   cache = {}
 }
 
+function confirmSearch(searchTerm) {
+  self.postMessage({ confirmSearch: searchTerm })
+}
+
 function search(searchTerm) {
   const cachedResult = cache[searchTerm]
   if (cachedResult) {
@@ -35,13 +39,13 @@ function search(searchTerm) {
 /*self.onmessage is where we define the handler for messages recieved
 from the main thread*/
 self.onmessage = function(e) {
-  const { data, searchTerm } = e.data
+  const { data, searchTerm, confirmed } = e.data
 
   /*We can determine how to respond to the .postMessage from 
   SearchResults.js based on which data properties it has:*/
   if (data) {
     initiateSearchEngine(data)
   } else if (searchTerm) {
-    search(searchTerm)
+    confirmed ? search(searchTerm) : confirmSearch(searchTerm)
   }
 }
