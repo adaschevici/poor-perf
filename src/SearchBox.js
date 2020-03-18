@@ -54,11 +54,12 @@ class SearchResults extends Component {
       book.originalTitle.includes(this.props.searchTerm)
     )
     if (searchTerm && searchTerm !== prevProps.searchTerm) {
-      Promise.resolve().then(() => {
+      const setTimeoutCb = () => {
         this.setState({
           searchResults: results,
         })
-      })
+      }
+      setTimeout(setTimeoutCb)
     }
   }
 
