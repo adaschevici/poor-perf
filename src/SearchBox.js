@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import styles from './SearchBox.css'
+import Worker from './delegate.worker'
+import { books } from './titles.json'
 import { List } from 'react-virtualized'
 
 class ReactVirtualizedList extends Component {
@@ -46,21 +48,24 @@ class SearchResults extends Component {
     this.state = {
       searchResults: [],
     }
+    this.webWorker = new Worker()
+    this.webWorker.postMessage({ data: books })
+    this.webWorker.onmessage = this.handleResults
   }
+
   componentDidUpdate(prevProps) {
     const { searchTerm } = this.props
     if (searchTerm && searchTerm !== prevProps.searchTerm) {
       console.log({ searchTerm })
-      fetch(`/search`, {
-        method: 'POST',
-        body: JSON.stringify({ searchTerm }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(r => r.json())
-        .then(resp => this.setState({ searchResults: resp.searchResults }))
+      this.webWorker.postMessage({ searchTerm })
     }
+  }
+
+  handleResults = evt => {
+    const { searchResults } = evt.data
+    this.setState({
+      searchResults,
+    })
   }
 
   render() {
