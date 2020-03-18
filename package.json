@@ -6,20 +6,26 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
-    "clsx": "^1.1.0",
+    "body-parser": "^1.19.0",
+    "concurrently": "^5.1.0",
+    "express": "^4.17.1",
+    "npm-run-all": "^4.1.5",
+    "pm2": "^4.2.3",
     "prettier": "^1.19.1",
     "react": "^16.13.0",
-    "react-autocomplete": "^1.8.1",
     "react-dom": "^16.13.0",
     "react-scripts": "3.4.0",
     "react-virtualized": "^9.21.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "server": "pm2-dev start src/server.js",
+    "client": "react-scripts start",
+    "start": "npm-run-all --parallel server client",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": "react-app"
   },

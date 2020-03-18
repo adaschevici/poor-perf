@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import styles from './SearchBox.css'
-import { books } from './titles.json'
 import { List } from 'react-virtualized'
 
 class ReactVirtualizedList extends Component {
@@ -45,21 +44,22 @@ class SearchResults extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      searchResults: books,
+      searchResults: [],
     }
   }
   componentDidUpdate(prevProps) {
     const { searchTerm } = this.props
-    const results = books.filter(book =>
-      book.originalTitle.includes(this.props.searchTerm)
-    )
     if (searchTerm && searchTerm !== prevProps.searchTerm) {
-      const setTimeoutCb = () => {
-        this.setState({
-          searchResults: results,
-        })
-      }
-      setTimeout(setTimeoutCb)
+      console.log({ searchTerm })
+      fetch(`/search`, {
+        method: 'POST',
+        body: JSON.stringify({ searchTerm }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(r => r.json())
+        .then(resp => this.setState({ searchResults: resp.searchResults }))
     }
   }
 
