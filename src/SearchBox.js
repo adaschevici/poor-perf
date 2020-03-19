@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styles from './SearchBox.css'
-import Worker from './delegate.worker'
+import WorkerArrayController from './worker-array'
 import { books } from './titles.json'
 import { List } from 'react-virtualized'
 
@@ -48,30 +48,25 @@ class SearchResults extends Component {
     this.state = {
       searchResults: [],
     }
-    this.webWorker = new Worker()
-    this.webWorker.postMessage({ data: books })
-    this.webWorker.onmessage = this.handleResults
+    this.workerArray = new WorkerArrayController({
+      data: books,
+      handleResults: this.handleResults,
+      arraySize: 4,
+    })
   }
 
   componentDidUpdate(prevProps) {
     const { searchTerm } = this.props
     if (searchTerm && searchTerm !== prevProps.searchTerm) {
-      this.webWorker.postMessage({ searchTerm, confirmed: true })
+      this.workerArray.search({ searchTerm })
     }
   }
 
   handleResults = evt => {
-    const { searchResults, confirmSearchTerm } = evt.data
-    if (confirmSearchTerm && confirmSearchTerm === this.props.searchTerm) {
-      this.webWorker.postMessage({
-        searchTerm: this.props.searchTerm,
-        confirmed: true,
-      })
-    } else if (searchResults) {
-      this.setState({
-        searchResults,
-      })
-    }
+    const { searchResults } = evt.data
+    this.setState({
+      searchResults,
+    })
   }
 
   render() {

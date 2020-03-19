@@ -3,49 +3,33 @@ function SearchEngine(data) {
 }
 
 SearchEngine.prototype.search = function(term) {
-  console.log(this.books)
-  return this.books.filter(book => book.originalTitle.includes(term))
+  const results = this.books.filter(book => book.originalTitle.includes(term))
+  console.log(results, term)
+  return results
 }
 
 let searchEngine
-let cache = {}
-//thought I would add a simple cache... Wait till you see those deletes now :)
+let port
 
-function initiateSearchEngine(data) {
-  //initiate the search engine with the 13,000 item data set
+function initiate(data, portData) {
   searchEngine = new SearchEngine(data)
-  //reset the cache on initiate just in case
-  cache = {}
+  port = portData
+  port.onmessage = search
 }
 
-function confirmSearch(searchTerm) {
-  self.postMessage({ confirmSearch: searchTerm })
-}
-
-function search(searchTerm) {
-  const cachedResult = cache[searchTerm]
-  if (cachedResult) {
-    self.postMessage(cachedResult)
-    return
-  }
+/* search is attached to the port as the message handler so it
+runs when communicating with the workerArray only */
+function search(e) {
+  const { searchTerm } = e.data
   const message = {
     searchResults: searchEngine.search(searchTerm),
   }
-  cache[searchTerm] = message
-  //self.postMessage is the api for sending messages to main thread
-  self.postMessage(message)
+  port.postMessage(message)
 }
 
-/*self.onmessage is where we define the handler for messages recieved
-from the main thread*/
+/* self.onmessage is the handler that responds to messages from
+the main thread, which only fires during initiation */
 self.onmessage = function(e) {
-  const { data, searchTerm, confirmed } = e.data
-
-  /*We can determine how to respond to the .postMessage from 
-  SearchResults.js based on which data properties it has:*/
-  if (data) {
-    initiateSearchEngine(data)
-  } else if (searchTerm) {
-    confirmed ? search(searchTerm) : confirmSearch(searchTerm)
-  }
+  const { data } = e.data
+  initiate(data, e.ports[0])
 }
